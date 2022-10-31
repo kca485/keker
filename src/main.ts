@@ -1,22 +1,29 @@
-import { app, BrowserWindow } from 'electron';
+import { app, BrowserWindow, ipcMain } from 'electron';
 import * as path from 'path';
 import Keker from './keker';
 
 const keker = new Keker([
   { url: 'https://lpse.gunungkidulkab.go.id/eproc4' },
 ]);
-keker.look();
+
+function handleLook() {
+  return keker.look();
+}
 
 function createWindow() {
   const mainWindow = new BrowserWindow({
     width: 800,
     height: 600,
+    webPreferences: {
+      preload: path.join(__dirname, 'preload.js'),
+    },
   });
 
   mainWindow.loadFile(path.join(__dirname, '../index.html'));
 }
 
 app.whenReady().then(() => {
+  ipcMain.handle('look', handleLook);
   createWindow();
 
   app.on('activate', () => {

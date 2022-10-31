@@ -11,7 +11,7 @@ interface Source {
 }
 
 interface IKeker {
-  look(): Promise<void>;
+  look(): Promise<void | Array<Object>>;
 }
 
 class Keker implements IKeker {
@@ -84,6 +84,8 @@ class Keker implements IKeker {
       const data = this.#format($, rows, source);
       this.#result.push(data);
     }
+
+    return this.#result;
   }
 }
 
