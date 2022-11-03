@@ -12,9 +12,31 @@
       content="default-src 'self'; script-src 'self'"
     />
     <title>Keker</title>
+    <link rel="stylesheet" href="style.css">
+    <template id="link-template">
+      <li>
+        <details>
+          <summary>
+            <a href="" class="url"></a>
+          </summary>
+          <ul class="spot-list">
+
+          </ul>
+        </details>
+      </li>
+    </template>
+    <template id="spot-template">
+      <li>
+        <div class="category"></div>
+        <div class="title"></div>
+        <div class="hps"></div>
+        <div class="dateline"></div>
+      </li>
+    </template>
   </head>
   <body>
     <button id="start">Mulai</button>
+    <ul id="result"></ul>
     <script src="./dist/renderer.js"></script>
   </body>
 </html>

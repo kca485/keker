@@ -11,15 +11,38 @@ interface Source {
 }
 
 interface IKeker {
-  look(): Promise<void | Array<Object>>;
+  look(): Promise<void | KekerResult[]>;
+}
+
+interface AvailableSpotDetails {
+  title: string,
+  hps: string,
+  dateline: string,
+}
+
+interface AvailableSpot {
+  'Pengadaan Barang': AvailableSpotDetails[],
+  'Jasa Konsultansi Badan Usaha Non Konstruksi': AvailableSpotDetails[],
+  'Pekerjaan Konstruksi': AvailableSpotDetails[],
+  'Jasa Lainnya': AvailableSpotDetails[],
+  'Jasa Konsultansi Perorangan Non Konstruksi': AvailableSpotDetails[],
+  'Jasa Konsultansi Badan Usaha Konstruksi': AvailableSpotDetails[],
+  'Jasa Konsultansi Perorangan Konstruksi': AvailableSpotDetails[],
+  'Pekerjaan Konstruksi Terintegrasi': AvailableSpotDetails[],
+}
+
+export interface KekerResult {
+  url: string,
+  tender: AvailableSpot,
+  nonTender: AvailableSpot
 }
 
 class Keker implements IKeker {
-  #pool: Array<Source>;
+  #pool: Source[];
 
-  #result: Array<Object> = [];
+  #result: KekerResult[] = [];
 
-  constructor(pool: Array<Source>) {
+  constructor(pool: Source[]) {
     this.#pool = pool;
   }
 
@@ -65,10 +88,12 @@ class Keker implements IKeker {
       data[category][subCategory].push({ title, hps, dateline });
     });
 
-    return data;
+    return data as KekerResult;
   }
 
   async look() {
+    this.#result = [];
+
     for (const source of this.#pool) {
       const doc = await this.#get(source.url);
       if (!doc) {
