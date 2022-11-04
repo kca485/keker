@@ -1,7 +1,58 @@
-import { KekerResult } from "./keker";
+import { KekerResult, AvailableSpot } from "./keker";
+
+// ===========
+//
+// Source List
+//
+// ===========
+
+const sources: string[] = [];
+const sourceList = document.getElementById('source-list') as HTMLElement;
+const data = localStorage.getItem('sources') || '[]';
+sources.push(...JSON.parse(data));
+const sourceTemplate = document.getElementById('source-template') as HTMLTemplateElement;
+function renderSources() {
+  sourceList.innerHTML = '';
+  sources.forEach((source) => {
+    const clone = sourceTemplate.content.cloneNode(true) as HTMLElement;
+    const sourceSpan = clone.querySelector('.source') as HTMLElement;
+    sourceSpan.textContent = source;
+    sourceList.appendChild(clone);
+  });
+}
+renderSources();
+
+const newSource = document.getElementById('new-source') as HTMLInputElement;
+const addButton = document.getElementById('add-source') as HTMLElement;
+addButton.addEventListener('click', () => {
+  sources.push(newSource.value.trim());
+  localStorage.setItem('sources', JSON.stringify(sources));
+  newSource.value = '';
+  renderSources();
+});
+
+sourceList.addEventListener('click', (e) => {
+  const target = e.target as HTMLElement;
+  if (!target.classList.contains('remove-source')) {
+    return;
+  }
+
+  const li = target.parentElement as HTMLElement;
+  const source = li.firstElementChild?.textContent;
+  const targetIndex = sources.findIndex((value) => value === source);
+  sources.splice(targetIndex, 1);
+  localStorage.setItem('sources', JSON.stringify(sources));
+  target.parentElement?.remove();
+});
+
+// ======================
+//
+// Find available Package
+//
+// ======================
 
 interface IMainProcess {
-  look: () => Promise<void | KekerResult[]>,
+  look: (urls: string[]) => Promise<void | KekerResult[]>,
 }
 
 declare global {
@@ -10,10 +61,9 @@ declare global {
   }
 }
 
-
 const startButton = document.getElementById('start');
 startButton?.addEventListener('click', async () => {
-  const data = await window.mainProcess.look();
+  const data = await window.mainProcess.look(sources);
   if (!data) {
     return;
   }
@@ -30,7 +80,8 @@ startButton?.addEventListener('click', async () => {
     anchor.href = datum.url;
     anchor.textContent = datum.url;
 
-    const spotList = clone.querySelector('.spot-list') as HTMLElement;
+    const tender = clone.querySelector('.tender') as HTMLElement;
+    const nonTender = clone.querySelector('.non-tender') as HTMLElement;
     const spotTemplate = document.getElementById('spot-template') as HTMLTemplateElement;
 
     function buildSpot(
@@ -45,65 +96,43 @@ startButton?.addEventListener('click', async () => {
       const hps = spot.querySelector('.hps') as HTMLElement;
       const dateline = spot.querySelector('.dateline') as HTMLElement;
 
-      category.textContent = `${clss}: ${cat}`;
+      category.textContent = cat;
       title.textContent = itm.title;
       hps.textContent = itm.hps;
       dateline.textContent = itm.dateline;
 
+      const spotList = clss === 'Tender' ? tender : nonTender;
       spotList.appendChild(spot);
     }
 
+    const categories: (keyof AvailableSpot)[] = [
+      'Pengadaan Barang',
+      'Pekerjaan Konstruksi Terintegrasi',
+      'Pekerjaan Konstruksi',
+      'Jasa Lainnya',
+      'Jasa Konsultansi Perorangan Non Konstruksi',
+      'Jasa Konsultansi Perorangan Konstruksi',
+      'Jasa Konsultansi Badan Usaha Non Konstruksi',
+      'Jasa Konsultansi Badan Usaha Konstruksi',
+    ];
+
     // tender list
-    datum.tender['Pengadaan Barang']?.forEach((item) => {
-      buildSpot('Pengadaan Barang', item, 'Tender');
-    });
-    datum.tender['Pekerjaan Konstruksi Terintegrasi']?.forEach((item) => {
-      buildSpot('Pekerjaan Konstruksi Terintegrasi', item, 'Tender');
-    });
-    datum.tender['Pekerjaan Konstruksi']?.forEach((item) => {
-      buildSpot('Pekerjaan Konstruksi', item, 'Tender');
-    });
-    datum.tender['Jasa Lainnya']?.forEach((item) => {
-      buildSpot('Jasa Lainnya', item, 'Tender');
-    });
-    datum.tender['Jasa Konsultansi Perorangan Non Konstruksi']?.forEach((item) => {
-      buildSpot('Jasa Konsultansi Perorangan Non Konstruksi', item, 'Tender');
-    });
-    datum.tender['Jasa Konsultansi Perorangan Konstruksi']?.forEach((item) => {
-      buildSpot('Jasa Konsultansi Perorangan Konstruksi', item, 'Tender');
-    });
-    datum.tender['Jasa Konsultansi Badan Usaha Non Konstruksi']?.forEach((item) => {
-      buildSpot('Jasa Konsultansi Badan Usaha Non Konstruksi', item, 'Tender');
-    });
-    datum.tender['Jasa Konsultansi Badan Usaha Konstruksi']?.forEach((item) => {
-      buildSpot('Jasa Konsultansi Badan Usaha Konstruksi', item, 'Tender');
-    });
+    if (datum.tender) {
+      categories.forEach((cat) => {
+        datum.tender[cat]?.forEach((item) => {
+          buildSpot(cat, item, 'Tender');
+        });
+      });
+    }
 
     // non tender list
-    datum.nonTender['Pengadaan Barang']?.forEach((item) => {
-      buildSpot('Pengadaan Barang', item, 'Non Tender');
-    });
-    datum.nonTender['Pekerjaan Konstruksi Terintegrasi']?.forEach((item) => {
-      buildSpot('Pekerjaan Konstruksi Terintegrasi', item, 'Non Tender');
-    });
-    datum.nonTender['Pekerjaan Konstruksi']?.forEach((item) => {
-      buildSpot('Pekerjaan Konstruksi', item, 'Non Tender');
-    });
-    datum.nonTender['Jasa Lainnya']?.forEach((item) => {
-      buildSpot('Jasa Lainnya', item, 'Non Tender');
-    });
-    datum.nonTender['Jasa Konsultansi Perorangan Non Konstruksi']?.forEach((item) => {
-      buildSpot('Jasa Konsultansi Perorangan Non Konstruksi', item, 'Non Tender');
-    });
-    datum.nonTender['Jasa Konsultansi Perorangan Konstruksi']?.forEach((item) => {
-      buildSpot('Jasa Konsultansi Perorangan Konstruksi', item, 'Non Tender');
-    });
-    datum.nonTender['Jasa Konsultansi Badan Usaha Non Konstruksi']?.forEach((item) => {
-      buildSpot('Jasa Konsultansi Badan Usaha Non Konstruksi', item, 'Non Tender');
-    });
-    datum.nonTender['Jasa Konsultansi Badan Usaha Konstruksi']?.forEach((item) => {
-      buildSpot('Jasa Konsultansi Badan Usaha Konstruksi', item, 'Non Tender');
-    });
+    if (datum.nonTender) {
+      categories.forEach((cat) => {
+        datum.nonTender[cat]?.forEach((item) => {
+          buildSpot(cat, item, 'Non Tender');
+        });
+      });
+    }
 
     resultList.appendChild(clone);
   });

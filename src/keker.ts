@@ -20,7 +20,7 @@ interface AvailableSpotDetails {
   dateline: string,
 }
 
-interface AvailableSpot {
+export interface AvailableSpot {
   'Pengadaan Barang': AvailableSpotDetails[],
   'Jasa Konsultansi Badan Usaha Non Konstruksi': AvailableSpotDetails[],
   'Pekerjaan Konstruksi': AvailableSpotDetails[],

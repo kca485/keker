@@ -2,6 +2,10 @@ li {
   margin: 1em 0;
 }
 
+#start {
+  margin-top: 2em;
+}
+
 li div {
-  border: solid 1px black;
+  max-width: calc(80ch + 2em);
 }

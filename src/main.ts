@@ -1,12 +1,10 @@
-import { app, BrowserWindow, ipcMain } from 'electron';
+import { app, BrowserWindow, ipcMain, IpcMainInvokeEvent, shell } from 'electron';
 import * as path from 'path';
 import Keker from './keker';
 
-const keker = new Keker([
-  { url: 'https://lpse.gunungkidulkab.go.id/eproc4' },
-]);
-
-function handleLook() {
+function handleLook(e: IpcMainInvokeEvent, data: string[]) {
+  const urls = data.map((datum) => ({ url: datum }));
+  const keker = new Keker(urls);
   return keker.look();
 }
 
@@ -19,6 +17,10 @@ function createWindow() {
     },
   });
 
+  mainWindow.webContents.setWindowOpenHandler(({ url }) => {
+    shell.openExternal(url);
+    return { action: 'deny' };
+  });
   mainWindow.loadFile(path.join(__dirname, '../index.html'));
 }
 
