@@ -6,10 +6,9 @@ import { KekerResult, AvailableSpot } from "./keker";
 //
 // ===========
 
-const sources: string[] = [];
+const store = localStorage.getItem('sources');
+const sources = store ? [...JSON.parse(store)] : ["https://lpse.slemankab.go.id/eproc4"];
 const sourceList = document.getElementById('source-list') as HTMLElement;
-const data = localStorage.getItem('sources') || '[]';
-sources.push(...JSON.parse(data));
 const sourceTemplate = document.getElementById('source-template') as HTMLTemplateElement;
 function renderSources() {
   sourceList.innerHTML = '';

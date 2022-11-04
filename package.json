@@ -1,13 +1,13 @@
 {
   "name": "keker",
   "version": "1.0.0",
-  "description": "",
-  "main": "dist/main.js",
+  "description": "Pencari paket dari halaman LPSE",
+  "main": "transpiled/main.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
-  "author": "",
+  "author": "kca485",
   "license": "ISC",
   "devDependencies": {
     "@types/node": "^18.11.7",
@@ -19,5 +19,8 @@
   "dependencies": {
     "cheerio": "^1.0.0-rc.12",
     "node-fetch": "^2.6.7"
+  },
+  "build": {
+    "appId": "com.electron.keker"
   }
 }
